@@ -2,6 +2,9 @@
 <html lang="bn"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1e6bd6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Graphics Art Institute</title>
 <style>
 :root{--bg:#f4f6fb;--cd:#fff;--tx:#1a1f2c;--mu:#6b7280;--pr:#1e6bd6;--p2:#e6efff;--bd:#e2e6ef;--dg:#d33a3a;color-scheme:light dark}
@@ -180,6 +183,7 @@ document.addEventListener("change",e=>{
   else if(t.id==="sf"&&admin)run(async()=>{for(const f of t.files){if(f.size>41943040)throw{message:"৪০ MB এর বড় ফাইল দেওয়া যাবে না"};const p=await up(f,"pdf","pdf","application/pdf");await q(sb.from("syllabus").insert({dept:N.d,sem:N.s,name:f.name,path:p,size:f.size}))}await loadSyl();view()});
 });
 $("#md").addEventListener("click",e=>{if(e.target.id==="md")shut()});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 (async()=>{
   try{const{data}=await sb.auth.getSession();admin=!!data.session;sb.auth.onAuthStateChange((_e,s)=>{admin=!!s})}catch(e){}
   await run(loadBooks);view();
