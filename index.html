@@ -47,7 +47,6 @@ label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}label.btn{c
 .vt{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;color:#fff}.vt button{background:rgba(255,255,255,.18);border:0;color:#fff;border-radius:22px;padding:10px 16px;font:inherit}
 .vs{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}.vs img{max-width:100%;max-height:100%}
 .pv{aspect-ratio:3/4;max-height:200px;border-radius:12px;background:var(--p2) center/cover}
-.tb{display:flex;gap:8px;margin-bottom:12px}.tb button{flex:1;border:1px solid var(--bd);background:var(--cd);color:var(--mu);border-radius:12px;padding:11px 6px;font:inherit;font-weight:600;font-size:14px}.tb button.on{background:var(--pr);border-color:var(--pr);color:#fff}
 #dl{display:none;background:#fff3c4;color:#3b3200;padding:10px 14px;align-items:center;gap:10px;font-size:14px;font-family:inherit}#dl span{flex:1;line-height:1.35}#dl a{background:#1e6bd6;color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-weight:600;white-space:nowrap}#dl button{background:none;border:0;font-size:20px;color:#3b3200}
 </style></head>
 <body>
@@ -60,7 +59,7 @@ const U="https://gjshpumhtekbfmitruqc.supabase.co",K="sb_publishable_y_kg0Rw5AqF
 const sb=supabase.createClient(U,K);
 const NAME="Graphics Art Institute",OWNER="Habib Ullah",D=["গ্রাফিক ডিজাইন","প্রিন্টিং","কম্পিউটার"],I=["🎨","🖨️","💻"],O=["1st","2nd","3rd","4th","5th","6th","7th","8th"];
 const ER={ROLL_INVALID:"রোল 237650 থেকে 237780 এর মধ্যে হতে হবে",PIN_SHORT:"কমপক্ষে ৪ অক্ষরের PIN দিন",PIN_WRONG:"PIN ভুল হয়েছে"};
-let admin=false,tab="home",N={d:null,s:null,b:null},books=[],pages=[],syl=[],rolls=[],roll=null,R=null,PIN="",vi=0,st,all=[],bt="practical";
+let admin=false,tab="home",N={d:null,s:null,b:null},books=[],pages=[],syl=[],rolls=[],roll=null,R=null,PIN="",vi=0,st;
 const $=s=>document.querySelector(s),esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,10),pub=p=>sb.storage.from("files").getPublicUrl(p).data.publicUrl;
 const kb=n=>n>1048576?(n/1048576).toFixed(1)+" MB":Math.round(n/1024)+" KB";
@@ -70,13 +69,12 @@ function shut(){$("#md").classList.remove("on")}
 function busy(on){$("#bz").style.display=on?"flex":"none"}
 async function run(f){busy(1);try{return await f()}catch(e){sheet(`<h2>সমস্যা হয়েছে</h2><p>${esc(em(e))}</p><button class="btn" onclick="shut()">ঠিক আছে</button>`)}finally{busy(0)}}
 function ask(m,f){sheet(`<h2>নিশ্চিত?</h2><p>${esc(m)}</p><button class="btn dg" id="y">হ্যাঁ</button><button class="btn alt" onclick="shut()">না</button>`);$("#y").onclick=()=>{shut();run(async()=>{await f();view()})}}
-function shrink(f,m=1100,ql=.82){return new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onerror=()=>no({message:"ছবি পড়া যায়নি"});i.onload=()=>{const k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext("2d").drawImage(i,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(u);b?ok(b):no({message:"ছবি পড়া যায়নি"})},"image/jpeg",ql)};i.src=u})}
+function shrink(f,m=1100){return new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onerror=()=>no({message:"ছবি পড়া যায়নি"});i.onload=()=>{const k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext("2d").drawImage(i,0,0,c.width,c.height);c.toBlob(b=>{URL.revokeObjectURL(u);b?ok(b):no({message:"ছবি পড়া যায়নি"})},"image/jpeg",.82)};i.src=u})}
 async function up(blob,dir,ext,type){const p=`${dir}/${uid()}.${ext}`;const{error}=await sb.storage.from("files").upload(p,blob,{contentType:type});if(error)throw error;return p}
 async function rm(paths){if(paths.length)await sb.storage.from("files").remove(paths)}
 async function q(p){const{data,error}=await p;if(error)throw error;return data}
 const loadBooks=async()=>{books=await q(sb.from("books").select("*").order("created_at"))};
-const KN={practical:"প্র্যাকটিক্যাল",sessional:"সেশনাল"},kd=p=>p.kind||"practical";
-const loadPages=async()=>{all=await q(sb.from("book_pages").select("*").eq("book_id",N.b).order("created_at"));pages=all.filter(p=>kd(p)===bt)};
+const loadPages=async()=>{pages=await q(sb.from("book_pages").select("*").eq("book_id",N.b).order("created_at"))};
 const loadSyl=async()=>{syl=await q(sb.from("syllabus").select("*").eq("dept",N.d).eq("sem",N.s).order("created_at"))};
 const loadRolls=async()=>{rolls=await q(sb.from("reports").select("roll,name").order("roll"))};
 
@@ -91,7 +89,7 @@ function view(){
     else if(N.s===null){h=back+`<h1>${D[N.d]}<small>${S?"সিলেবাস":"বই"}</small></h1>`;b=cards(O.map((o,i)=>({big:i+1,t:o+" Semester",sub:S?"PDF ফাইল":books.filter(x=>x.dept==N.d&&x.sem==i).length+"টি বই",a:"s",i})))}
     else if(S){h=back+`<h1>${O[N.s]} Semester<small>${D[N.d]} · সিলেবাস</small></h1>`;b=(admin?upl("sf","+ PDF যোগ করুন","application/pdf"):"")+(syl.length?syl.map(f=>`<div class="row"><a class="pn" href="${pub(f.path)}" target="_blank" rel="noopener">📄 ${esc(f.name)}<small>${kb(f.size||0)}</small></a>${admin?`<button class="pb" data-a="sd" data-i="${f.id}">🗑</button>`:""}</div>`).join(""):`<div class="em">এখনো কোনো সিলেবাস নেই।</div>`)}
     else if(N.b===null){const L=books.filter(x=>x.dept==N.d&&x.sem==N.s);h=back+`<h1>${O[N.s]} Semester<small>${D[N.d]} · ${L.length}টি বই</small></h1>`;b=`<div class="g">`+L.map(x=>`<div class="bo" data-a="bk" data-i="${x.id}">${admin?`<button class="ed" data-a="be" data-i="${x.id}">✎</button>`:""}<div class="cv" style="${x.cover_path?`background-image:url(${pub(x.cover_path)})`:""}">${x.cover_path?"":esc(x.title)}</div><div class="bt">${esc(x.title)}</div></div>`).join("")+(admin?`<div class="ad" data-a="ba"><i>+</i>বই যোগ করুন</div>`:"")+`</div>`}
-    else{const x=books.find(y=>y.id===N.b)||{title:""};h=back+`<h1>${esc(x.title)}<small>${KN[bt]} · ${pages.length}টি ছবি</small></h1>`;const cn=k=>all.filter(p=>kd(p)===k).length;b=`<div class="tb">`+["practical","sessional"].map(k=>`<button class="${bt===k?"on":""}" data-a="bt" data-i="${k}">${KN[k]} (${cn(k)})</button>`).join("")+`</div>`+(admin?upl("pf","+ ছবি যোগ করুন ("+KN[bt]+")","image/*"):"")+(pages.length?`<div class="g3">`+pages.map((p,k)=>`<div class="th" data-a="sh" data-i="${k}"><img src="${pub(p.thumb_path||p.path)}" loading="lazy" alt=""><em>${k+1}</em></div>`).join("")+`</div>`:`<div class="em">${KN[bt]} এ এখনো কোনো ছবি নেই।</div>`)}
+    else{const x=books.find(y=>y.id===N.b)||{title:""};h=back+`<h1>${esc(x.title)}<small>${pages.length}টি ছবি</small></h1>`;b=(admin?upl("pf","+ ছবি যোগ করুন","image/*"):"")+(pages.length?`<div class="g3">`+pages.map((p,k)=>`<div class="th" data-a="sh" data-i="${k}"><img src="${pub(p.path)}" loading="lazy" alt=""><em>${k+1}</em></div>`).join("")+`</div>`:`<div class="em">এখনো কোনো ছবি নেই।</div>`)}
   }else if(tab==="rep"){h=`<h1>রিপোর্ট<small>${roll?"রোল "+roll:OWNER}</small></h1>`;b=repHTML()}
   else{h=`<h1>সেটিং</h1>`;b=(admin?`<div class="cd"><h3>এডমিন মোড চালু আছে</h3><p>ছবি, বই ও PDF যোগ বা মোছা যাবে।</p><button class="btn" data-a="lo">লগ আউট</button></div>`:`<div class="cd"><h3>এডমিন লগইন</h3><input type="email" id="em" placeholder="ইমেইল"><input type="password" id="pw" placeholder="পাসওয়ার্ড" style="margin-top:8px"><p id="le" class="er"></p><button class="btn" data-a="li">লগইন</button></div>`)+`<div class="cd"><h3>এপ সম্পর্কে</h3><p>${NAME}</p><p>তৈরি করেছেন: ${OWNER}</p></div>`}
   $("#hd").innerHTML=h;$("#mn").innerHTML=b;
@@ -138,7 +136,7 @@ function bookForm(id){
     const t=$("#bt").value.trim()||"নতুন বই";
     await q(id?sb.from("books").update({title:t,cover_path:cp}).eq("id",id):sb.from("books").insert({dept:N.d,sem:N.s,title:t,cover_path:cp}));
     await loadBooks();shut();view()});
-  if(id)$("#dl").onclick=()=>ask(`“${b.title}” ও এর সব ছবি মুছে যাবে।`,async()=>{const ps=(await q(sb.from("book_pages").select("path,thumb_path").eq("book_id",id))).flatMap(x=>[x.path,x.thumb_path].filter(Boolean));if(b.cover_path)ps.push(b.cover_path);await rm(ps);await q(sb.from("books").delete().eq("id",id));await loadBooks()});
+  if(id)$("#dl").onclick=()=>ask(`“${b.title}” ও এর সব ছবি মুছে যাবে।`,async()=>{const ps=(await q(sb.from("book_pages").select("path").eq("book_id",id))).map(x=>x.path);if(b.cover_path)ps.push(b.cover_path);await rm(ps);await q(sb.from("books").delete().eq("id",id));await loadBooks()});
 }
 function show(i){
   vi=i;const p=pages[vi];
@@ -155,15 +153,14 @@ document.addEventListener("click",async e=>{
     case"d":N.d=+i;view();break;
     case"s":N.s=+i;if(tab==="syl")await run(loadSyl);view();break;
     case"back":if(N.b!==null)N.b=null;else if(N.s!==null)N.s=null;else N.d=null;view();break;
-    case"bk":N.b=i;bt="practical";await run(loadPages);view();break;
-    case"bt":bt=i;pages=all.filter(p=>kd(p)===bt);view();break;
+    case"bk":N.b=i;await run(loadPages);view();break;
     case"be":e.stopPropagation();bookForm(i);break;
     case"ba":bookForm(null);break;
     case"sh":show(+i);break;
     case"vx":$("#vw").classList.remove("on");view();break;
     case"vp":show((vi+pages.length-1)%pages.length);break;
     case"vn":show((vi+1)%pages.length);break;
-    case"vd":ask("এই ছবিটি মুছে যাবে।",async()=>{const p=pages[vi];await rm([p.path,p.thumb_path].filter(Boolean));await q(sb.from("book_pages").delete().eq("id",p.id));await loadPages();show(Math.min(vi,pages.length-1))});break;
+    case"vd":ask("এই ছবিটি মুছে যাবে।",async()=>{const p=pages[vi];await rm([p.path]);await q(sb.from("book_pages").delete().eq("id",p.id));await loadPages();show(Math.min(vi,pages.length-1))});break;
     case"sd":ask("ফাইলটি মুছে যাবে।",async()=>{const f=syl.find(x=>x.id===i);await rm([f.path]);await q(sb.from("syllabus").delete().eq("id",i));await loadSyl()});break;
     case"ro":openRep();break;
     case"rs":openRep(i);break;
@@ -184,7 +181,7 @@ document.addEventListener("input",e=>{
 document.addEventListener("change",e=>{
   const t=e.target;
   if(R&&t.type==="checkbox"&&t.dataset.r){R.days[t.dataset.d][t.dataset.r]=t.checked;tt();dirty()}
-  else if(t.id==="pf"&&admin)run(async()=>{for(const f of t.files){const p=await up(await shrink(f),"pages","jpg","image/jpeg"),tp=await up(await shrink(f,320,.7),"thumbs","jpg","image/jpeg");await q(sb.from("book_pages").insert({book_id:N.b,path:p,thumb_path:tp,kind:bt}))}await loadPages();view()});
+  else if(t.id==="pf"&&admin)run(async()=>{for(const f of t.files){const p=await up(await shrink(f),"pages","jpg","image/jpeg");await q(sb.from("book_pages").insert({book_id:N.b,path:p}))}await loadPages();view()});
   else if(t.id==="sf"&&admin)run(async()=>{for(const f of t.files){if(f.size>41943040)throw{message:"৪০ MB এর বড় ফাইল দেওয়া যাবে না"};const p=await up(f,"pdf","pdf","application/pdf");await q(sb.from("syllabus").insert({dept:N.d,sem:N.s,name:f.name,path:p,size:f.size}))}await loadSyl();view()});
 });
 $("#md").addEventListener("click",e=>{if(e.target.id==="md")shut()});
