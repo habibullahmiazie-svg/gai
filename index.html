@@ -26,7 +26,7 @@ main{padding:16px 14px;max-width:720px;margin:0 auto}
 .th{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--cd);border:1px solid var(--bd)}.th img{width:100%;height:100%;object-fit:cover}
 .th em{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-style:normal;padding:2px 7px;border-radius:10px}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--cd);border-top:1px solid var(--bd);display:flex;padding:6px 0;z-index:9}
-nav button{flex:1;background:none;border:0;color:var(--mu);font:inherit;font-size:12px;padding:6px 0}nav i{display:block;font-style:normal;font-size:22px}nav .on{color:var(--pr);font-weight:700}
+nav button{flex:1;background:none;border:0;color:var(--mu);font:inherit;font-size:11px;padding:6px 0}nav i{display:block;font-style:normal;font-size:22px}nav .on{color:var(--pr);font-weight:700}
 .cd{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:12px}.cd h3{margin:0 0 6px;font-size:16px}.cd p{color:var(--mu);font-size:14px;margin:4px 0}
 .btn{display:block;width:100%;background:var(--pr);color:#fff;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:600;font-size:15px;margin-top:8px;text-align:center}.alt{background:var(--p2);color:var(--pr)}.dg{background:var(--dg)}
 .rel{position:relative;overflow:hidden}.ov{position:absolute;inset:0;width:100%;height:100%;opacity:0}
@@ -48,6 +48,7 @@ label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}label.btn{c
 .vs{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}.vs img{max-width:100%;max-height:100%}
 .pv{aspect-ratio:3/4;max-height:200px;border-radius:12px;background:var(--p2) center/cover}
 .tb{display:flex;gap:8px;margin-bottom:12px}.tb button{flex:1;border:1px solid var(--bd);background:var(--cd);color:var(--mu);border-radius:12px;padding:11px 6px;font:inherit;font-weight:600;font-size:14px}.tb button.on{background:var(--pr);border-color:var(--pr);color:#fff}
+.vp{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;background:linear-gradient(135deg,#2a3145,#5b6b95)}.vs video{max-width:100%;max-height:100%}
 #dl{display:none;background:#fff3c4;color:#3b3200;padding:10px 14px;align-items:center;gap:10px;font-size:14px;font-family:inherit}#dl span{flex:1;line-height:1.35}#dl a{background:#1e6bd6;color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-weight:600;white-space:nowrap}#dl button{background:none;border:0;font-size:20px;color:#3b3200}
 </style></head>
 <body>
@@ -76,7 +77,8 @@ async function rm(paths){if(paths.length)await sb.storage.from("files").remove(p
 async function q(p){const{data,error}=await p;if(error)throw error;return data}
 const loadBooks=async()=>{books=await q(sb.from("books").select("*").order("created_at"))};
 const KN={practical:"প্র্যাকটিক্যাল",sessional:"সেশনাল"},kd=p=>p.kind||"practical";
-const loadPages=async()=>{all=await q(sb.from("book_pages").select("*").eq("book_id",N.b).order("created_at"));pages=all.filter(p=>kd(p)===bt)};
+const SC=()=>tab==="sug"?"sug":"book",inS=x=>(x.sec||"book")===SC(),isV=p=>/\.(mp4|webm|mov|m4v|3gp|mkv)$/i.test(p.path||"");
+const loadPages=async()=>{all=await q(sb.from("book_pages").select("*").eq("book_id",N.b).order("created_at"));pages=all.filter(p=>tab==="sug"||kd(p)===bt)};
 const loadSyl=async()=>{syl=await q(sb.from("syllabus").select("*").eq("dept",N.d).eq("sem",N.s).order("created_at"))};
 const loadRolls=async()=>{rolls=await q(sb.from("reports").select("roll,name").order("roll"))};
 
@@ -85,17 +87,17 @@ const cards=(a,one)=>`<div class="g"${one?' style="grid-template-columns:1fr"':"
 const upl=(id,l,acc)=>`<label class="btn rel">${l}<input type="file" id="${id}" accept="${acc}" multiple class="ov"></label>`;
 function view(){
   let h="",b="";const back=`<button class="bk" data-a="back">‹</button>`;
-  if(tab==="home"||tab==="syl"){
-    const S=tab==="syl";
-    if(N.d===null){h=`<h1>${S?"সিলেবাস":NAME}<small>${OWNER}${admin?" · এডমিন মোড":""}</small></h1>`;b=cards(D.map((d,i)=>({big:I[i],t:d,sub:"৮টি সেমিস্টার",a:"d",i})),1)}
-    else if(N.s===null){h=back+`<h1>${D[N.d]}<small>${S?"সিলেবাস":"বই"}</small></h1>`;b=cards(O.map((o,i)=>({big:i+1,t:o+" Semester",sub:S?"PDF ফাইল":books.filter(x=>x.dept==N.d&&x.sem==i).length+"টি বই",a:"s",i})))}
+  if(tab==="home"||tab==="syl"||tab==="sug"){
+    const S=tab==="syl",G=tab==="sug";
+    if(N.d===null){h=`<h1>${S?"সিলেবাস":G?"শর্ট সাজেশন":NAME}<small>${OWNER}${admin?" · এডমিন মোড":""}</small></h1>`;b=cards(D.map((d,i)=>({big:I[i],t:d,sub:"৮টি সেমিস্টার",a:"d",i})),1)}
+    else if(N.s===null){h=back+`<h1>${D[N.d]}<small>${S?"সিলেবাস":"বই"}</small></h1>`;b=cards(O.map((o,i)=>({big:i+1,t:o+" Semester",sub:S?"PDF ফাইল":books.filter(x=>x.dept==N.d&&x.sem==i&&inS(x)).length+"টি বই",a:"s",i})))}
     else if(S){h=back+`<h1>${O[N.s]} Semester<small>${D[N.d]} · সিলেবাস</small></h1>`;b=(admin?upl("sf","+ PDF যোগ করুন","application/pdf"):"")+(syl.length?syl.map(f=>`<div class="row"><a class="pn" href="${pub(f.path)}" target="_blank" rel="noopener">📄 ${esc(f.name)}<small>${kb(f.size||0)}</small></a>${admin?`<button class="pb" data-a="sd" data-i="${f.id}">🗑</button>`:""}</div>`).join(""):`<div class="em">এখনো কোনো সিলেবাস নেই।</div>`)}
-    else if(N.b===null){const L=books.filter(x=>x.dept==N.d&&x.sem==N.s);h=back+`<h1>${O[N.s]} Semester<small>${D[N.d]} · ${L.length}টি বই</small></h1>`;b=`<div class="g">`+L.map(x=>`<div class="bo" data-a="bk" data-i="${x.id}">${admin?`<button class="ed" data-a="be" data-i="${x.id}">✎</button>`:""}<div class="cv" style="${x.cover_path?`background-image:url(${pub(x.cover_path)})`:""}">${x.cover_path?"":esc(x.title)}</div><div class="bt">${esc(x.title)}</div></div>`).join("")+(admin?`<div class="ad" data-a="ba"><i>+</i>বই যোগ করুন</div>`:"")+`</div>`}
-    else{const x=books.find(y=>y.id===N.b)||{title:""};h=back+`<h1>${esc(x.title)}<small>${KN[bt]} · ${pages.length}টি ছবি</small></h1>`;const cn=k=>all.filter(p=>kd(p)===k).length;b=`<div class="tb">`+["practical","sessional"].map(k=>`<button class="${bt===k?"on":""}" data-a="bt" data-i="${k}">${KN[k]} (${cn(k)})</button>`).join("")+`</div>`+(admin?upl("pf","+ ছবি যোগ করুন ("+KN[bt]+")","image/*"):"")+(pages.length?`<div class="g3">`+pages.map((p,k)=>`<div class="th" data-a="sh" data-i="${k}"><img src="${pub(p.thumb_path||p.path)}" loading="lazy" alt=""><em>${k+1}</em></div>`).join("")+`</div>`:`<div class="em">${KN[bt]} এ এখনো কোনো ছবি নেই।</div>`)}
+    else if(N.b===null){const L=books.filter(x=>x.dept==N.d&&x.sem==N.s&&inS(x));h=back+`<h1>${O[N.s]} Semester<small>${D[N.d]} · ${L.length}টি বই</small></h1>`;b=`<div class="g">`+L.map(x=>`<div class="bo" data-a="bk" data-i="${x.id}">${admin?`<button class="ed" data-a="be" data-i="${x.id}">✎</button>`:""}<div class="cv" style="${x.cover_path?`background-image:url(${pub(x.cover_path)})`:""}">${x.cover_path?"":esc(x.title)}</div><div class="bt">${esc(x.title)}</div></div>`).join("")+(admin?`<div class="ad" data-a="ba"><i>+</i>বই যোগ করুন</div>`:"")+`</div>`}
+    else{const x=books.find(y=>y.id===N.b)||{title:""};h=back+`<h1>${esc(x.title)}<small>${G?"":KN[bt]+" · "}${pages.length}টি ${G?"ফাইল":"ছবি"}</small></h1>`;const cn=k=>all.filter(p=>kd(p)===k).length;b=(G?"":`<div class="tb">`+["practical","sessional"].map(k=>`<button class="${bt===k?"on":""}" data-a="bt" data-i="${k}">${KN[k]} (${cn(k)})</button>`).join("")+`</div>`)+(admin?upl("pf",G?"+ ছবি / ভিডিও যোগ করুন":"+ ছবি যোগ করুন ("+KN[bt]+")",G?"image/*,video/*":"image/*"):"")+(pages.length?`<div class="g3">`+pages.map((p,k)=>`<div class="th" data-a="sh" data-i="${k}">${isV(p)?'<div class="vp">▶</div>':`<img src="${pub(p.thumb_path||p.path)}" loading="lazy" alt="">`}<em>${k+1}</em></div>`).join("")+`</div>`:`<div class="em">${G?"এখনো কোনো ফাইল নেই।":KN[bt]+" এ এখনো কোনো ছবি নেই।"}</div>`)}
   }else if(tab==="rep"){h=`<h1>রিপোর্ট<small>${roll?"রোল "+roll:OWNER}</small></h1>`;b=repHTML()}
   else{h=`<h1>সেটিং</h1>`;b=(admin?`<div class="cd"><h3>এডমিন মোড চালু আছে</h3><p>ছবি, বই ও PDF যোগ বা মোছা যাবে।</p><button class="btn" data-a="lo">লগ আউট</button></div>`:`<div class="cd"><h3>এডমিন লগইন</h3><input type="email" id="em" placeholder="ইমেইল"><input type="password" id="pw" placeholder="পাসওয়ার্ড" style="margin-top:8px"><p id="le" class="er"></p><button class="btn" data-a="li">লগইন</button></div>`)+`<div class="cd"><h3>এপ সম্পর্কে</h3><p>${NAME}</p><p>তৈরি করেছেন: ${OWNER}</p></div>`}
   $("#hd").innerHTML=h;$("#mn").innerHTML=b;
-  $("#nv").innerHTML=[["home","🏠","হোম"],["syl","📄","সিলেবাস"],["rep","📊","রিপোর্ট"],["set","⚙️","সেটিং"]].map(([k,i,l])=>`<button class="${tab===k?"on":""}" data-a="tab" data-i="${k}"><i>${i}</i>${l}</button>`).join("");
+  $("#nv").innerHTML=[["home","🏠","হোম"],["sug","💡","শর্ট সাজেশন"],["syl","📄","সিলেবাস"],["rep","📊","রিপোর্ট"],["set","⚙️","সেটিং"]].map(([k,i,l])=>`<button class="${tab===k?"on":""}" data-a="tab" data-i="${k}"><i>${i}</i>${l}</button>`).join("");
   window.scrollTo(0,0);
 }
 function tot(){const d=R.days,s=k=>d.reduce((a,x)=>a+(parseFloat(x[k])||0),0),c=k=>d.filter(x=>x[k]).length,f=n=>Math.round(n*100)/100;return{n:f(s("n")),s:f(s("s"))+" ঘণ্টা",c:c("c")+" দিন",q:f(s("q")),h:f(s("h")),p:c("p")+" দিন",e:c("e")+" দিন"}}
@@ -136,13 +138,13 @@ function bookForm(id){
   $("#sv").onclick=()=>run(async()=>{
     let cp=b.cover_path;if(f){cp=await up(await shrink(f,700),"covers","jpg","image/jpeg");if(b.cover_path)await rm([b.cover_path])}
     const t=$("#bt").value.trim()||"নতুন বই";
-    await q(id?sb.from("books").update({title:t,cover_path:cp}).eq("id",id):sb.from("books").insert({dept:N.d,sem:N.s,title:t,cover_path:cp}));
+    await q(id?sb.from("books").update({title:t,cover_path:cp}).eq("id",id):sb.from("books").insert({dept:N.d,sem:N.s,title:t,cover_path:cp,sec:SC()}));
     await loadBooks();shut();view()});
   if(id)$("#dl").onclick=()=>ask(`“${b.title}” ও এর সব ছবি মুছে যাবে।`,async()=>{const ps=(await q(sb.from("book_pages").select("path,thumb_path").eq("book_id",id))).flatMap(x=>[x.path,x.thumb_path].filter(Boolean));if(b.cover_path)ps.push(b.cover_path);await rm(ps);await q(sb.from("books").delete().eq("id",id));await loadBooks()});
 }
 function show(i){
   vi=i;const p=pages[vi];
-  $("#vw").innerHTML=p?`<div class="vt"><button data-a="vx">✕ বন্ধ</button><span>${vi+1} / ${pages.length}</span>${admin?`<button data-a="vd">🗑</button>`:"<i></i>"}</div><div class="vs"><img src="${pub(p.path)}" alt=""></div><div class="vt"><button data-a="vp">‹ আগে</button><button data-a="vn">পরে ›</button></div>`:"";
+  $("#vw").innerHTML=p?`<div class="vt"><button data-a="vx">✕ বন্ধ</button><span>${vi+1} / ${pages.length}</span>${admin?`<button data-a="vd">🗑</button>`:"<i></i>"}</div><div class="vs">${isV(p)?`<video src="${pub(p.path)}" controls playsinline></video>`:`<img src="${pub(p.path)}" alt="">`}</div><div class="vt"><button data-a="vp">‹ আগে</button><button data-a="vn">পরে ›</button></div>`:"";
   $("#vw").classList.toggle("on",!!p);
 }
 
@@ -151,7 +153,7 @@ document.addEventListener("click",async e=>{
   const el=e.target.closest("[data-a]");if(!el)return;const a=el.dataset.a,i=el.dataset.i;
   if(["be","ba","sd","vd","nm","pr"].includes(a)&&!admin)return;
   switch(a){
-    case"tab":tab=i;N={d:null,s:null,b:null};roll=null;R=null;if(tab==="home")await run(loadBooks);if(tab==="rep"&&admin)await run(loadRolls);view();break;
+    case"tab":tab=i;N={d:null,s:null,b:null};roll=null;R=null;if(tab==="home"||tab==="sug")await run(loadBooks);if(tab==="rep"&&admin)await run(loadRolls);view();break;
     case"d":N.d=+i;view();break;
     case"s":N.s=+i;if(tab==="syl")await run(loadSyl);view();break;
     case"back":if(N.b!==null)N.b=null;else if(N.s!==null)N.s=null;else N.d=null;view();break;
@@ -184,7 +186,7 @@ document.addEventListener("input",e=>{
 document.addEventListener("change",e=>{
   const t=e.target;
   if(R&&t.type==="checkbox"&&t.dataset.r){R.days[t.dataset.d][t.dataset.r]=t.checked;tt();dirty()}
-  else if(t.id==="pf"&&admin)run(async()=>{for(const f of t.files){const p=await up(await shrink(f),"pages","jpg","image/jpeg"),tp=await up(await shrink(f,320,.7),"thumbs","jpg","image/jpeg");await q(sb.from("book_pages").insert({book_id:N.b,path:p,thumb_path:tp,kind:bt}))}await loadPages();view()});
+  else if(t.id==="pf"&&admin)run(async()=>{for(const f of t.files){if(f.type.startsWith("video/")){if(tab!=="sug")throw{message:"এখানে শুধু ছবি দেওয়া যাবে"};if(f.size>41943040)throw{message:"ভিডিও ৪০ MB এর বেশি হতে পারবে না"};const ex=((f.name.split(".").pop()||"mp4").toLowerCase().replace(/[^a-z0-9]/g,""))||"mp4";const p=await up(f,"pages",ex,f.type);await q(sb.from("book_pages").insert({book_id:N.b,path:p,kind:"sug"}))}else{const p=await up(await shrink(f),"pages","jpg","image/jpeg"),tp=await up(await shrink(f,320,.7),"thumbs","jpg","image/jpeg");await q(sb.from("book_pages").insert({book_id:N.b,path:p,thumb_path:tp,kind:tab==="sug"?"sug":bt}))}}await loadPages();view()});
   else if(t.id==="sf"&&admin)run(async()=>{for(const f of t.files){if(f.size>41943040)throw{message:"৪০ MB এর বড় ফাইল দেওয়া যাবে না"};const p=await up(f,"pdf","pdf","application/pdf");await q(sb.from("syllabus").insert({dept:N.d,sem:N.s,name:f.name,path:p,size:f.size}))}await loadSyl();view()});
 });
 $("#md").addEventListener("click",e=>{if(e.target.id==="md")shut()});
